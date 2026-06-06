@@ -1,0 +1,132 @@
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+*.egg
+.installed.cfg
+*.egg-info
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.cache
+.pyre/
+
+# ===== 本地虚拟环境 / Conda =====
+master_study_env/
+.env
+.venv
+venv/
+env/
+ENV/
+conda-meta/
+
+# ===== IDE =====
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# ===== OS =====
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ===== 数据文件 (按 AGENTS.md 约定：不进 git) =====
+*.xlsx
+*.xls
+*.xlsm
+*.csv
+*.tsv
+*.parquet
+*.feather
+*.h5
+*.hdf5
+*.npz
+*.npy
+*.mat
+*.sav
+*.pkl
+*.pickle
+*.edf
+*.edf+
+*.bdf
+*.fif
+*.dat
+*.bin
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.7z
+*.rar
+
+# ===== 训练产物 / 模型权重 =====
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.pb
+*.tflite
+*.joblib
+graduation_transfer/**/model/rnn_lstm/
+graduation_transfer/**/model/rnn_lstm_*/
+graduation_transfer/**/model/lstm/
+graduation_transfer/**/model/cnn/
+graduation_transfer/**/model/transformer/
+
+# ===== 日志 / 运行时输出 =====
+*.log
+*.out
+*.err
+logs/
+
+# ===== 临时 / 缓存 =====
+*.tmp
+*.temp
+*.bak
+*.swp
+*.orig
+*~
+.cache/
+.macos_caches/
+
+# ===== 嵌套 Git 仓库 (sleep_classify 已有自己的 .git) =====
+# git 默认会识别嵌套 .git 并停止下钻，无需额外配置
+# 这里只为防御性兜底
+graduation_transfer/sleep_posture/sleep_classify/.git/
+
+# ===== 项目特定 =====
+# save_execl.xlsx 由 util/concat_data.py 生成 (17 MB)
+graduation_transfer/sleep_posture/sleep_classify/util/save_execl.xlsx
+# 训练用原始 xlsx 数据集 (165 个文件)
+graduation_transfer/sleep_posture/sleep_classify/after_process_data/after_process_data/*.xlsx
+# Sleep-EDF 公开数据集 (.edf 文件 + 元数据)
+graduation_transfer/sleep_edf数据集/sleep-cassette/
+graduation_transfer/sleep_edf数据集/sleep-telemetry/
