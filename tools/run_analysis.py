@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 批量运行分析工具 — 逐一执行所有 Python 脚本，收集 stdout/stderr/exit_code 并分类。
-用法: master_study_env/bin/python tools/run_analysis.py [WORKSPACE_DIR]
+用法: venv/bin/python tools/run_analysis.py [WORKSPACE_DIR]
 """
 import argparse
 import json
@@ -35,7 +35,7 @@ ARGS = parse_args()
 WORKSPACE = Path(ARGS.workspace).resolve() if ARGS.workspace else WORKSPACE_DEFAULT
 os.chdir(WORKSPACE)
 
-PYTHON = str(WORKSPACE / "master_study_env" / "bin" / "python")
+PYTHON = str(WORKSPACE / "venv" / "bin" / "python")
 ENV = os.environ.copy()
 ENV["MPLBACKEND"] = "Agg"  # 无头 matplotlib
 ENV["PYTHONUNBUFFERED"] = "1"
@@ -416,7 +416,7 @@ def generate_report(results: list, report_path: Path):
     w(f"# Python 脚本运行分析报告")
     w()
     w(f"- 运行时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    w(f"- 运行环境: master_study_env（Python 3.11, macOS ARM64）")
+    w(f"- 运行环境: venv（Python 3.11, macOS ARM64）")
     w(f"- 运行工具: tools/run_analysis.py")
     w(f"- 总脚本数: {total}")
     w()

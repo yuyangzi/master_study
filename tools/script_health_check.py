@@ -88,7 +88,7 @@ def parse_args() -> argparse.Namespace:
 # ---------------------------------------------------------------------------
 
 SKIP_DIRS = {
-    "master_study_env",
+    "venv",
     ".idea",
     "__pycache__",
     ".git",
@@ -283,7 +283,7 @@ def render_report(
 - 体检时间: 2026-06-06
 - 体检范围: {summary.total} 个 Python 脚本
 - 体检深度: 静态检查 + 导入可行性 (未执行 main，未执行模块代码)
-- 体检环境: master_study_env (只含 packaging/pip/setuptools/wheel)
+- 体检环境: venv (只含 packaging/pip/setuptools/wheel)
 - 工具脚本: tools/script_health_check.py
 """
 

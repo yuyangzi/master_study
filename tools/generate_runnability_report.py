@@ -3,7 +3,7 @@
 生成 48 个 .py 脚本的可运行性报告（49 个真实脚本 - 1 跳过）。
 读两份 run_results JSON + 静态扫描 .py 文件，输出 Markdown。
 
-用法: master_study_env/bin/python tools/generate_runnability_report.py [WORKSPACE]
+用法: venv/bin/python tools/generate_runnability_report.py [WORKSPACE]
 """
 import ast
 import json
@@ -303,7 +303,7 @@ def render_markdown(scripts: dict[str, ScriptInfo]) -> str:
     w("- 运行时间: 2026-06-06")
     w("- 范围: graduation_transfer/ 48 个 .py 脚本（49 个真实脚本 - 1 跳过 = 48；额外 1 条 `data_deal/test.py` 在磁盘但不在 SCRIPTS_ALL）")
     w("- 数据源: 5 旧 (17:12 run_results.json) + 29 新 (本次) + 14 未跑 + 1 跳过（feature_deal.py）")
-    w("- 环境: master_study_env (Python 3.11, macOS ARM64, torch 2.12 CPU)")
+    w("- 环境: venv (Python 3.11, macOS ARM64, torch 2.12 CPU)")
     w("")
 
     # 汇总
