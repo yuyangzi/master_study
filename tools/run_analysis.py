@@ -3,6 +3,7 @@
 批量运行分析工具 — 逐一执行所有 Python 脚本，收集 stdout/stderr/exit_code 并分类。
 用法: master_study_env/bin/python tools/run_analysis.py [WORKSPACE_DIR]
 """
+import argparse
 import json
 import os
 import shutil
@@ -12,7 +13,26 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-WORKSPACE = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path.cwd()
+WORKSPACE_DEFAULT = Path.cwd()
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="批量运行分析工具 — 逐一执行 Python 脚本，收集 stdout/stderr/exit_code"
+    )
+    parser.add_argument("workspace", nargs="?", default=None,
+                        help="workspace 目录（默认 cwd）")
+    parser.add_argument("--filter", choices=["all", "sleep_classify", "sleep_stage"],
+                        default="all", help="脚本发现过滤器（默认 all）")
+    parser.add_argument("--output", default=None,
+                        help="JSON 输出文件路径（默认按 filter 自动命名）")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="仅打印发现列表 + OUTPUT 路径，不实际执行")
+    parser.add_argument("--print-output", action="store_true",
+                        help="仅打印 OUTPUT 路径（配合 --dry-run 使用）")
+    return parser.parse_args()
+
+ARGS = parse_args()
+WORKSPACE = Path(ARGS.workspace).resolve() if ARGS.workspace else WORKSPACE_DEFAULT
 os.chdir(WORKSPACE)
 
 PYTHON = str(WORKSPACE / "master_study_env" / "bin" / "python")
@@ -24,63 +44,168 @@ TIMEOUT_FAST = 120      # 传统 ML 模型
 TIMEOUT_DL = 300        # 深度学习 100 epochs
 TIMEOUT_CONCAT = 600    # 合并 165 个 xlsx 写入磁盘
 
-# ── 脚本清单 ──────────────────────────────────────────────────────
-# 每个条目: (rel_path, workdir_rel, timeout, label)
-SCRIPTS = [
-    # ====== sleep_classify/code/ (clean, 有真实数据) ======
-    ("graduation_transfer/sleep_posture/sleep_classify/code/SVM_algorithm.py",
-     "graduation_transfer/sleep_posture/sleep_classify/code", TIMEOUT_FAST, "SVM_algorithm"),
-    ("graduation_transfer/sleep_posture/sleep_classify/code/bp_algorithm.py",
-     "graduation_transfer/sleep_posture/sleep_classify/code", TIMEOUT_DL, "bp_algorithm"),
-    ("graduation_transfer/sleep_posture/sleep_classify/code/descison_tree.py",
-     "graduation_transfer/sleep_posture/sleep_classify/code", TIMEOUT_FAST, "descison_tree"),
-    ("graduation_transfer/sleep_posture/sleep_classify/code/kdtree_data.py",
-     "graduation_transfer/sleep_posture/sleep_classify/code", TIMEOUT_FAST, "kdtree_data"),
-    ("graduation_transfer/sleep_posture/sleep_classify/code/kmeans_algorithm.py",
-     "graduation_transfer/sleep_posture/sleep_classify/code", TIMEOUT_FAST, "kmeans_algorithm"),
-    ("graduation_transfer/sleep_posture/sleep_classify/code/logic_regresssion.py",
-     "graduation_transfer/sleep_posture/sleep_classify/code", TIMEOUT_FAST, "logic_regresssion"),
-    ("graduation_transfer/sleep_posture/sleep_classify/code/lstm_classify.py",
-     "graduation_transfer/sleep_posture/sleep_classify/code", TIMEOUT_DL, "lstm_classify"),
-    ("graduation_transfer/sleep_posture/sleep_classify/code/rnn_classfiy.py",
-     "graduation_transfer/sleep_posture/sleep_classify/code", TIMEOUT_DL, "rnn_classfiy"),
-    ("graduation_transfer/sleep_posture/sleep_classify/code/transformer_classify.py",
-     "graduation_transfer/sleep_posture/sleep_classify/code", TIMEOUT_DL, "transformer_classify"),
-    ("graduation_transfer/sleep_posture/sleep_classify/code/verify_model.py",
-     "graduation_transfer/sleep_posture/sleep_classify/code", TIMEOUT_FAST, "verify_model"),
-    # ====== sleep_classify/util/ ======
-    ("graduation_transfer/sleep_posture/sleep_classify/util/concat_data.py",
-     "graduation_transfer/sleep_posture/sleep_classify/util", TIMEOUT_CONCAT, "concat_data"),
-    # ====== Sleep-pdf clean scripts ======
-    ("graduation_transfer/sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/model-模型训练代码/bar_chart.py",
-     "graduation_transfer/sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/model-模型训练代码",
+# ── 脚本发现（按 filter） ──────────────────────────────────────────
+GRADUATION = WORKSPACE / "graduation_transfer"
+SCRIPTS_ALL = [
+    # ====== sleep_classify/code/ ======
+    (GRADUATION / "sleep_posture/sleep_classify/code/SVM_algorithm.py",
+     GRADUATION / "sleep_posture/sleep_classify/code", TIMEOUT_FAST, "SVM_algorithm"),
+    (GRADUATION / "sleep_posture/sleep_classify/code/bp_algorithm.py",
+     GRADUATION / "sleep_posture/sleep_classify/code", TIMEOUT_DL, "bp_algorithm"),
+    (GRADUATION / "sleep_posture/sleep_classify/code/descison_tree.py",
+     GRADUATION / "sleep_posture/sleep_classify/code", TIMEOUT_FAST, "descison_tree"),
+    (GRADUATION / "sleep_posture/sleep_classify/code/kdtree_data.py",
+     GRADUATION / "sleep_posture/sleep_classify/code", TIMEOUT_FAST, "kdtree_data"),
+    (GRADUATION / "sleep_posture/sleep_classify/code/kmeans_algorithm.py",
+     GRADUATION / "sleep_posture/sleep_classify/code", TIMEOUT_FAST, "kmeans_algorithm"),
+    (GRADUATION / "sleep_posture/sleep_classify/code/logic_regresssion.py",
+     GRADUATION / "sleep_posture/sleep_classify/code", TIMEOUT_FAST, "logic_regresssion"),
+    (GRADUATION / "sleep_posture/sleep_classify/code/lstm_classify.py",
+     GRADUATION / "sleep_posture/sleep_classify/code", TIMEOUT_DL, "lstm_classify"),
+    (GRADUATION / "sleep_posture/sleep_classify/code/rnn_classfiy.py",
+     GRADUATION / "sleep_posture/sleep_classify/code", TIMEOUT_DL, "rnn_classfiy"),
+    (GRADUATION / "sleep_posture/sleep_classify/code/transformer_classify.py",
+     GRADUATION / "sleep_posture/sleep_classify/code", TIMEOUT_DL, "transformer_classify"),
+    (GRADUATION / "sleep_posture/sleep_classify/code/verify_model.py",
+     GRADUATION / "sleep_posture/sleep_classify/code", TIMEOUT_FAST, "verify_model"),
+    (GRADUATION / "sleep_posture/sleep_classify/util/concat_data.py",
+     GRADUATION / "sleep_posture/sleep_classify/util", TIMEOUT_CONCAT, "concat_data"),
+    # ====== Sleep-pdf (clean) ======
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/model-模型训练代码/bar_chart.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/model-模型训练代码",
      TIMEOUT_FAST, "bar_chart"),
-    ("graduation_transfer/sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/model-模型训练代码/model_figure.py",
-     "graduation_transfer/sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/model-模型训练代码",
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/model-模型训练代码/model_figure.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/model-模型训练代码",
      TIMEOUT_FAST, "model_figure"),
-    ("graduation_transfer/sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/model-模型训练代码/new__hybird_imag.py",
-     "graduation_transfer/sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/model-模型训练代码",
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/model-模型训练代码/new__hybird_imag.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/model-模型训练代码",
      TIMEOUT_FAST, "new__hybird_imag"),
-    ("graduation_transfer/sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/data_deal-sleep-pdf原始数据处理/test_psg_data.py",
-     "graduation_transfer/sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/data_deal-sleep-pdf原始数据处理",
-     TIMEOUT_FAST, "test_psg_data"),
-    ("graduation_transfer/sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/origin_data_deal/test.py",
-     "graduation_transfer/sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/origin_data_deal",
-     TIMEOUT_FAST, "origin_test"),
-    # ====== 迁移标签 clean ======
-    ("graduation_transfer/sleep_stage/睡眠研究/SleepEDF数据处理/sleep_stage-迁移标签代码/code-数据处理的代码(最终给IMU打上标签)/test_all.py",
-     "graduation_transfer/sleep_stage/睡眠研究/SleepEDF数据处理/sleep_stage-迁移标签代码/code-数据处理的代码(最终给IMU打上标签)",
-     TIMEOUT_FAST, "test_all"),
-    # ====== serial_port_extract (need hw, will fail gracefully) ======
-    ("graduation_transfer/sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/origin_data_deal/serial_port_extract.py",
-     "graduation_transfer/sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/origin_data_deal",
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/origin_data_deal/serial_port_extract.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/origin_data_deal",
      TIMEOUT_FAST, "serial_port_extract"),
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/data_deal-sleep-pdf原始数据处理/test_psg_data.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/data_deal-sleep-pdf原始数据处理",
+     TIMEOUT_FAST, "test_psg_data"),
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/origin_data_deal/test.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/origin_data_deal",
+     TIMEOUT_FAST, "origin_test"),
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/sleep_stage-迁移标签代码/code-数据处理的代码(最终给IMU打上标签)/test_all.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/sleep_stage-迁移标签代码/code-数据处理的代码(最终给IMU打上标签)",
+     TIMEOUT_FAST, "test_all"),
+    # ====== sleep_stage (新修路径) — 仅在 filter=sleep_stage 时使用 ======
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/IMU_sleep_stage-带有标签的IMU代码处理/data_deal_code/cal_label_count.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/IMU_sleep_stage-带有标签的IMU代码处理/data_deal_code",
+     TIMEOUT_FAST, "cal_label_count"),
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/IMU_sleep_stage-带有标签的IMU代码处理/data_deal_code/data_deal.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/IMU_sleep_stage-带有标签的IMU代码处理/data_deal_code",
+     TIMEOUT_FAST, "data_deal"),
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/IMU_sleep_stage-带有标签的IMU代码处理/data_deal_code/smote_label.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/IMU_sleep_stage-带有标签的IMU代码处理/data_deal_code",
+     TIMEOUT_FAST, "smote_label"),
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/IMU_sleep_stage-带有标签的IMU代码处理/data_deal_code/train_data_deal.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/IMU_sleep_stage-带有标签的IMU代码处理/data_deal_code",
+     TIMEOUT_FAST, "train_data_deal"),
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/IMU_sleep_stage-带有标签的IMU代码处理/model/imu_cnn.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/IMU_sleep_stage-带有标签的IMU代码处理/model",
+     TIMEOUT_DL, "imu_cnn"),
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/IMU_sleep_stage-带有标签的IMU代码处理/model/imu_cnn_lstm.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/IMU_sleep_stage-带有标签的IMU代码处理/model",
+     TIMEOUT_DL, "imu_cnn_lstm"),
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/IMU_sleep_stage-带有标签的IMU代码处理/model/imu_cnn_rnn.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/IMU_sleep_stage-带有标签的IMU代码处理/model",
+     TIMEOUT_DL, "imu_cnn_rnn"),
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/IMU_sleep_stage-带有标签的IMU代码处理/model/imu_kdtree.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/IMU_sleep_stage-带有标签的IMU代码处理/model",
+     TIMEOUT_FAST, "imu_kdtree"),
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/IMU_sleep_stage-带有标签的IMU代码处理/model/imu_lstm.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/IMU_sleep_stage-带有标签的IMU代码处理/model",
+     TIMEOUT_DL, "imu_lstm"),
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/IMU_sleep_stage-带有标签的IMU代码处理/model/imu_lstm_rnn.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/IMU_sleep_stage-带有标签的IMU代码处理/model",
+     TIMEOUT_DL, "imu_lstm_rnn"),
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/IMU_sleep_stage-带有标签的IMU代码处理/model/imu_rnn.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/IMU_sleep_stage-带有标签的IMU代码处理/model",
+     TIMEOUT_DL, "imu_rnn"),
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/sleep_stage-迁移标签代码/code-数据处理的代码(最终给IMU打上标签)/add_imu_label_4.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/sleep_stage-迁移标签代码/code-数据处理的代码(最终给IMU打上标签)",
+     TIMEOUT_FAST, "add_imu_label_4"),
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/sleep_stage-迁移标签代码/code-数据处理的代码(最终给IMU打上标签)/eeg_data_add_label_3.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/sleep_stage-迁移标签代码/code-数据处理的代码(最终给IMU打上标签)",
+     TIMEOUT_FAST, "eeg_data_add_label_3"),
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/sleep_stage-迁移标签代码/code-数据处理的代码(最终给IMU打上标签)/eeg_data_deal_1.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/sleep_stage-迁移标签代码/code-数据处理的代码(最终给IMU打上标签)",
+     TIMEOUT_FAST, "eeg_data_deal_1"),
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/sleep_stage-迁移标签代码/code-数据处理的代码(最终给IMU打上标签)/eeg_data_to_base_2.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/sleep_stage-迁移标签代码/code-数据处理的代码(最终给IMU打上标签)",
+     TIMEOUT_FAST, "eeg_data_to_base_2"),
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/sleep_stage-迁移标签代码/code-数据处理的代码(最终给IMU打上标签)/imu_data_deal_1.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/sleep_stage-迁移标签代码/code-数据处理的代码(最终给IMU打上标签)",
+     TIMEOUT_FAST, "imu_data_deal_1"),
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/sleep_stage-迁移标签代码/code-数据处理的代码(最终给IMU打上标签)/integrate_deal_process-只看这个代码.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/sleep_stage-迁移标签代码/code-数据处理的代码(最终给IMU打上标签)",
+     TIMEOUT_FAST, "integrate_deal_process"),
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/sleep_stage-迁移标签代码/model/psg_rnn_lstm.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/sleep_stage-迁移标签代码/model",
+     TIMEOUT_DL, "psg_rnn_lstm"),
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/data_deal-sleep-pdf原始数据处理/balance_data-提取后数据的预处理.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/data_deal-sleep-pdf原始数据处理",
+     TIMEOUT_FAST, "balance_data"),
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/data_deal-sleep-pdf原始数据处理/new_feature_deal-EEG提取.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/data_deal-sleep-pdf原始数据处理",
+     TIMEOUT_FAST, "new_feature_deal"),
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/data_deal-sleep-pdf原始数据处理/raw_data_extract.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/data_deal-sleep-pdf原始数据处理",
+     TIMEOUT_FAST, "raw_data_extract"),
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/model-模型训练代码/basic_rnn.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/model-模型训练代码",
+     TIMEOUT_DL, "basic_rnn"),
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/model-模型训练代码/decsion_tree.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/model-模型训练代码",
+     TIMEOUT_FAST, "decsion_tree"),
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/model-模型训练代码/hybird_matrix.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/model-模型训练代码",
+     TIMEOUT_FAST, "hybird_matrix"),
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/model-模型训练代码/psg_cnn.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/model-模型训练代码",
+     TIMEOUT_DL, "psg_cnn"),
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/model-模型训练代码/psg_kdtree.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/model-模型训练代码",
+     TIMEOUT_FAST, "psg_kdtree"),
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/model-模型训练代码/psg_knn.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/model-模型训练代码",
+     TIMEOUT_FAST, "psg_knn"),
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/model-模型训练代码/psg_lstm.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/model-模型训练代码",
+     TIMEOUT_DL, "psg_lstm"),
+    (GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/model-模型训练代码/psg_rnn_lstm.py",
+     GRADUATION / "sleep_stage/睡眠研究/SleepEDF数据处理/Sleep-pdf处理代码/new_project/model-模型训练代码",
+     TIMEOUT_DL, "psg_rnn_lstm"),
 ]
 
+# ── 过滤器 ──────────────────────────────────────────
+if ARGS.filter == "all":
+    SCRIPTS = SCRIPTS_ALL
+elif ARGS.filter == "sleep_classify":
+    SCRIPTS = SCRIPTS_ALL[:18]
+elif ARGS.filter == "sleep_stage":
+    SCRIPTS = SCRIPTS_ALL[18:]
 
-def run_one(script_rel: str, workdir_rel: str, timeout: int, label: str) -> dict:
-    script_abs = (WORKSPACE / script_rel).resolve()
-    workdir_abs = (WORKSPACE / workdir_rel).resolve()
+# ── 输出路径（按 filter） ──────────────────────────────────────
+def _compute_output() -> Path:
+    if ARGS.output:
+        return Path(ARGS.output).resolve()
+    if ARGS.filter == "sleep_classify":
+        return WORKSPACE / "docs/superpowers/reports/run_results-sleep_classify.json"
+    if ARGS.filter == "sleep_stage":
+        return WORKSPACE / "docs/superpowers/reports/run_results-sleep_stage.json"
+    return WORKSPACE / "docs/superpowers/reports/run_results.json"
+
+OUTPUT = _compute_output()
+
+
+def run_one(script_rel, workdir_rel, timeout: int, label: str) -> dict:
+    script_abs = Path(script_rel).resolve()
+    workdir_abs = Path(workdir_rel).resolve()
     result = {
         "label": label,
         "script": str(script_abs),
@@ -179,12 +304,21 @@ def run_one(script_rel: str, workdir_rel: str, timeout: int, label: str) -> dict
 
 def main():
     os.makedirs(WORKSPACE / "docs/superpowers/reports", exist_ok=True)
-    output_path = WORKSPACE / "docs/superpowers/reports/run_results.json"
+    output_path = OUTPUT  # ← 用模块级 OUTPUT（按 filter 自动命名）
     report_path = WORKSPACE / "docs/superpowers/reports/2026-06-06-run-analysis-report.md"
 
     print(f"Workspace: {WORKSPACE}")
     print(f"Python:    {PYTHON}")
     print()
+
+    # ── --dry-run 短路（不执行脚本） ──
+    if ARGS.dry_run:
+        print(f"Loaded {len(SCRIPTS)} {ARGS.filter} scripts")
+        for s in SCRIPTS:
+            print(f"  {s[3]:30s} {s[0].name}")
+        if ARGS.print_output:
+            print(f"output: {OUTPUT}")
+        return
 
     results = []
     # 如果有已有的 json，先加载以支持增量运行
@@ -196,13 +330,18 @@ def main():
     else:
         done_labels = set()
 
-    for script_rel, workdir_rel, timeout, label in SCRIPTS:
+    for i in range(len(SCRIPTS)):
+        script_path, workdir_path, timeout, label = SCRIPTS[i]
+        # 兼容：script_path/workdir_path 可能是 Path（新）或 str（缓存旧结果）
+        script_str = str(script_path) if not isinstance(script_path, str) else script_path
+        workdir_str = str(workdir_path) if not isinstance(workdir_path, str) else workdir_path
+
         if label in done_labels:
             print(f"  ⏭  {label} (已有)")
             continue
 
         print(f"  ▶  {label}  (timeout={timeout}s)", end="", flush=True)
-        r = run_one(script_rel, workdir_rel, timeout, label)
+        r = run_one(script_str, workdir_str, timeout, label)
         results.append(r)
 
         dur = r["duration_s"]
@@ -226,8 +365,11 @@ def main():
             json.dump(results, f, ensure_ascii=False, indent=2)
 
     # ── 生成报告 ──
-    generate_report(results, report_path)
-    print(f"\n报告已写入: {report_path}")
+    # 仅在 --filter all 或 --filter sleep_classify 时生成旧 markdown 报告
+    # --filter sleep_stage 不生成（避免与新 runnability 报告混淆）
+    if ARGS.filter != "sleep_stage":
+        generate_report(results, report_path)
+        print(f"\n报告已写入: {report_path}")
 
 
 def classify_results(results: list) -> dict:
