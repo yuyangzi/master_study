@@ -8,13 +8,14 @@ from sklearn.metrics import precision_score, recall_score, f1_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import classification_report, accuracy_score
 import pandas as pd
+from pathlib import Path
 
 
 class KnnAlgorithm(object):
 
     def __init__(self):
         # 数据集所在的文件夹
-        self.dir_path = "F:/master_paper_and_project/research/new_project/merge_data/balanced_sort_2025_09_15_21_data.csv"
+        self.dir_path = str(Path(__file__).parent.parent / "merge_data" / "balanced_sort_2025_09_15_21_data.csv")
 
     def knn_train_data(self):
         """

@@ -10,6 +10,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import precision_score, recall_score, f1_score
 import numpy as np
+from pathlib import Path
 
 
 # 1. 数据预处理
@@ -25,7 +26,7 @@ class SleepDataset(Dataset):
         return self.X[idx], self.y[idx]
 
 
-dir_path = "F:/master_paper_and_project/research/new_project/merge_data/balanced_sort_2025_09_15_21_data.csv"
+dir_path = str(Path(__file__).parent.parent / "merge_data" / "balanced_sort_2025_09_15_21_data.csv")
 df = pd.read_csv(dir_path)
 
 # 这里使用用户提供的示例数据格式

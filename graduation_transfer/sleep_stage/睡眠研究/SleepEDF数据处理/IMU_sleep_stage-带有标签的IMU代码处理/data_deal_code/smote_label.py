@@ -1,10 +1,11 @@
 import os
 import pandas as pd
 from imblearn.over_sampling import SMOTE
+from pathlib import Path
 
 def main():
-    input_path = "F:/master_paper_and_project/IMU_sleep_stage/base_data/liu_imu_label.csv"
-    output_path = "F:/master_paper_and_project/IMU_sleep_stage/base_data/liu_imu_label_smote_label0_100k.csv"
+    input_path = str(Path(__file__).parent.parent / "base_data" / "liu_imu_label.csv")
+    output_path = str(Path(__file__).parent.parent / "base_data" / "liu_imu_label_smote_label0_100k.csv")
 
     df = pd.read_csv(input_path)
     if 'predicted_label' not in df.columns:

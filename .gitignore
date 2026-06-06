@@ -130,3 +130,6 @@ graduation_transfer/sleep_posture/sleep_classify/after_process_data/after_proces
 # Sleep-EDF 公开数据集 (.edf 文件 + 元数据)
 graduation_transfer/sleep_edf数据集/sleep-cassette/
 graduation_transfer/sleep_edf数据集/sleep-telemetry/
+# 运行分析产生的 JSON 输出（临时，每次运行不同）
+docs/superpowers/reports/run_results.json
+docs/superpowers/reports/*.json

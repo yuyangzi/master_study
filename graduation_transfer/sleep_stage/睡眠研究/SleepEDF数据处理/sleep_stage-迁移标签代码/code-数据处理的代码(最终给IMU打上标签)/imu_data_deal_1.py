@@ -3,13 +3,14 @@
 """
 import pandas as pd
 import numpy as np
+from pathlib import Path
 
 
 class IMUDataToCSV(object):
 
     def __init__(self):
-        self.file_path = "E:/master_paper_and_project/sleep_stage/rawdata/gjx/"
-        self.save_path = "E:/master_paper_and_project/sleep_stage/EEG_data/imu_gjx/"
+        self.file_path = str(Path(__file__).parent.parent / "rawdata" / "gjx" / "")
+        self.save_path = str(Path(__file__).parent.parent / "EEG_data" / "imu_gjx" / "")
 
     def deal_eeg_data(self):
         for i in range(2, 3):

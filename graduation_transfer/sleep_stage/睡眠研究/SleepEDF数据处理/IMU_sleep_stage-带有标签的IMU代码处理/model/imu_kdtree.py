@@ -8,13 +8,14 @@ from sklearn.metrics import precision_score, recall_score, f1_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import classification_report, accuracy_score
 import pandas as pd
+from pathlib import Path
 
 
 class KDtreeAlgorithm(object):
 
     def __init__(self):
         # 数据集所在的文件夹
-        self.dir_path = "F:/master_paper_and_project/IMU_sleep_stage/base_data/train_label.csv"
+        self.dir_path = str(Path(__file__).parent.parent / "base_data" / "train_label.csv")
 
     def kdree_train_data(self):
         """

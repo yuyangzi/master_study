@@ -8,6 +8,7 @@ import torch
 import torch.nn as nn
 from sklearn.preprocessing import StandardScaler
 from torch.utils.data import Dataset, DataLoader
+from pathlib import Path
 
 
 class SleepLSTM(nn.Module):
@@ -123,19 +124,19 @@ class CompleteDealDataset(object):
             raise ValueError(f"请输入对应的用户名称,且将原始数据放在sleep_stage/EEG_data/complete_path/{user_name}下")
         self.user_name = user_name
         # 最优模型的路径
-        self.model_path = "F:/master_paper_and_project/sleep_stage/model/rnn_lstm/best_model_epoch36.pth"
+        self.model_path = str(Path(__file__).parent.parent / "model" / "rnn_lstm" / "best_model_epoch36.pth")
         # 原始数据的路径
-        self.raw_path = "F:/master_paper_and_project/sleep_stage/EEG_data/complete_path/" + user_name + "/"
+        self.raw_path = str(Path(__file__).parent.parent / "EEG_data" / "complete_path" / "") + user_name + "/"
         # PSG的数据的处理
-        self.psg_deal_path = "F:/master_paper_and_project/sleep_stage/PSG_deal_data/deal_data/"
+        self.psg_deal_path = str(Path(__file__).parent.parent / "PSG_deal_data" / "deal_data" / "")
         # PSG打上标签的数据
-        self.psg_label_path = "F:/master_paper_and_project/sleep_stage/PSG_deal_data/label_data/"
+        self.psg_label_path = str(Path(__file__).parent.parent / "PSG_deal_data" / "label_data" / "")
         # 获取EEG时域和频域的信号数据
-        self.psg_fr_date_path = "F:/master_paper_and_project/sleep_stage/PSG_deal_data/frequent_date_data/"
+        self.psg_fr_date_path = str(Path(__file__).parent.parent / "PSG_deal_data" / "frequent_date_data" / "")
         # IMU的数据处理
-        self.imu_deal_path = "F:/master_paper_and_project/sleep_stage/IMU_deal_data/deal_data/"
+        self.imu_deal_path = str(Path(__file__).parent.parent / "IMU_deal_data" / "deal_data" / "")
         # IMU打上标签的数据
-        self.imu_label_path = "F:/master_paper_and_project/sleep_stage/IMU_deal_data/label_data/"
+        self.imu_label_path = str(Path(__file__).parent.parent / "IMU_deal_data" / "label_data" / "")
         # 需要修改的数据
         # eeg的data
         self.eeg_origin_data_file = "eeg_liu.xls"

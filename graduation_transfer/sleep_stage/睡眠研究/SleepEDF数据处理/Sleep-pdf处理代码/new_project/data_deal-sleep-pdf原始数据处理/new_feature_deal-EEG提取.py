@@ -5,18 +5,19 @@ import os
 import random
 from scipy.signal import welch
 from datetime import datetime
+from pathlib import Path
 
 
 class NewEDFDataDeal(object):
 
     def __init__(self, sample_count=10):
         # 数据集所在的文件夹
-        self.dir_path = "E:/master_paper_and_project/research/all_data/sleep-cassette/"
+        self.dir_path = str(Path(__file__).parent.parent.parent.parent / "all_data" / "sleep-cassette" / "")
         # 每次训练需要获取的样本个数
         self.sample_count = sample_count
         # 用于保存的数据位置
         date_str = datetime.now().strftime("%Y_%m_%d_%H")
-        self.save_path = "E:/master_paper_and_project/research/new_project/merge_data/" + date_str + "_data.csv"
+        self.save_path = str(Path(__file__).parent.parent / "merge_data" / "") + date_str + "_data.csv"
 
     def deal_all_data(self):
         # 返回的列表中为feature_file:label_file

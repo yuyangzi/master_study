@@ -3,6 +3,7 @@ import sys
 import numpy as np
 import pandas as pd
 from collections import Counter
+from pathlib import Path
 
 def choose_downsample_indices_stream(input_path, label_col, target_label, target_count, chunksize, rng):
     # 水库采样，选择保留的标签1的全局行号（相对CSV数据行，而非含表头）
@@ -101,8 +102,8 @@ def append_upsampled_duplicates(input_path, output_path, label_col, target_label
 
 def main():
     base_dir = '.'
-    input_path = "F:/master_paper_and_project/IMU_sleep_stage/base_data/reasonable_label.csv"
-    output_path = "F:/master_paper_and_project/IMU_sleep_stage/base_data/train_label.csv"
+    input_path = str(Path(__file__).parent.parent / "base_data" / "reasonable_label.csv")
+    output_path = str(Path(__file__).parent.parent / "base_data" / "train_label.csv")
 
     label_col = 'predicted_label'  # 如不同请修改
     target_label = 1

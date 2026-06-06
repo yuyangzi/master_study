@@ -117,6 +117,11 @@ str(Path(__file__).parent.parent / "subdir" / "file.csv")
 - `from pathlib import Path` 自动添加
 - 跳过 feature_deal.py
 - 幂等性：第二次运行不会重复修改
+- **Metis + Momus plan review 修复**：
+  - Group E BASE3: `3×parent` → `2×parent` ✓
+  - Group F BASE5: `4×parent` → `3×parent` ✓
+  - 原始字符串转义和尾部分隔符处理已验证正确
+- **内建语法验证**：`ast.parse` 在写入前检查每个修改后文件，语法错误自动回退
 
 ### 不处理
 
@@ -139,13 +144,14 @@ graph TD
 
 ## 5. 验证
 
-1. **工具 LSP 检查**: 修改后的文件无语法错误
-2. **重新执行运行分析**:
+1. **fix_paths.py 内建语法检查**: `ast.parse(content)` 在写入前验证每个修改后文件；语法错误自动回退
+2. **工具 LSP 检查**: 修改后的文件无语法错误
+3. **重新执行运行分析**:
    ```bash
    rm -f docs/superpowers/reports/run_results.json
    master_study_env/bin/python tools/run_analysis.py .
    ```
-3. **验收标准**:
+4. **验收标准**:
    - 30 个被修改文件 import 全部通过（不应再有 F:/ 路径导致的 FileNotFoundError）
    - 原 clean 的 18 个 sleep_classify 脚本不受影响
    - `feature_deal.py`（all-commented）不受影响

@@ -7,12 +7,13 @@ import os
 import random
 from scipy.signal import welch
 from datetime import datetime
+from pathlib import Path
 
 
 class RawDataExtract(object):
 
     def __init__(self):
-        self.raw_data_path = "E:/master_paper_and_project/research/new_project/raw_data/ecg_chy1.xls"
+        self.raw_data_path = str(Path(__file__).parent.parent / "raw_data" / "ecg_chy1.xls")
 
     def split_raw_eeg(self, eeg_data):
         # 采样率

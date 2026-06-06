@@ -9,6 +9,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import precision_score, recall_score, f1_score
+from pathlib import Path
 
 
 # 1. 数据预处理
@@ -24,7 +25,7 @@ class SleepDataset(Dataset):
         return self.X[idx], self.y[idx]
 
 
-dir_path = "E:/ysl/IMU_sleep_stage/base_data/train_label.csv"
+dir_path = str(Path(__file__).parent.parent / "base_data" / "train_label.csv")
 df = pd.read_csv(dir_path)
 
 # 这里使用用户提供的示例数据格式
