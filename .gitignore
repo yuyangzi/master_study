@@ -32,7 +32,6 @@ htmlcov/
 .pyre/
 
 # ===== 本地虚拟环境 / Conda =====
-master_study_env/
 .env
 .venv
 venv/

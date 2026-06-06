@@ -8,7 +8,7 @@
 
 工作区根：`/Users/zero/Desktop/master_study`
 
-- `master_study_env/` — 本地 conda 环境（Python 3.11），但**只装了 `packaging/pip/setuptools/wheel`**，并未安装 `torch/sklearn/pandas`。真正的训练用环境是 PyCharm 里的 `Python 3.7 (pytorch)`，或在远程服务器 `root@159.75.177.109:22`（见 `.idea/deployment.xml`）。
+- `venv/` — 本地 conda 环境（Python 3.11），但**只装了 `packaging/pip/setuptools/wheel`**，并未安装 `torch/sklearn/pandas`。真正的训练用环境是 PyCharm 里的 `Python 3.7 (pytorch)`，或在远程服务器 `root@159.75.177.109:22`（见 `.idea/deployment.xml`）。
 - `graduation_transfer/` — 课题代码与数据：
   - `sleep_posture/sleep_classify/` — **唯一被 git 跟踪的子项目**（远程：`git@github.com:yeshangle/sleep_classify.git`，当前分支 `release.new`）。
   - `sleep_stage/睡眠研究/SleepEDF数据处理/` — 睡眠分期相关三个子工程（IMU 带标签 / 迁移标签 / Sleep-pdf），**全部不在 git 控制下**。
