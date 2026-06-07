@@ -10,6 +10,8 @@
 
 **Spec 参考：** `docs/superpowers/specs/2026-06-07-update-runnability-report-design.md`
 
+> ⚠️ **执行关键约束**：本 plan 中所有 `path:line-line` 行号引用都是**近似指示**，不可用作行号定位。所有修改必须通过**精确文本搜索-替换**完成（用 oldString 在文件中唯一定位），不要按行号定位内容。这是上游 Task 数量导致行号漂移的防护措施（T1 增加 1 行后，所有下游 task 行号会偏移）。
+
 ---
 
 ## 文件结构
@@ -25,7 +27,7 @@
 **Files:**
 - Modify: `docs/superpowers/reports/2026-06-06-script-runnability-report.md:5-6`
 
-- [ ] **Step 1: 替换头部 4-6 行**
+- [x] **Step 1: 替换头部 4-6 行**
 
 将：
 ```markdown
@@ -361,9 +363,9 @@ git reset --hard HEAD~1
 
 ## 成功标准
 
-- [ ] 5 处修改按 spec 准确执行
-- [ ] 头/汇总/优先级 3 个表数字自洽
-- [ ] 3 条目标脚本的状态、错误、修复、运行字段一致
-- [ ] git diff 仅修改一个文件
+- [x] 5 处修改按 spec 准确执行
+- [x] 头/汇总/优先级 3 个表数字自洽
+- [x] 3 条目标脚本的状态、错误、修复、运行字段一致
+- [x] git diff 仅修改一个文件
 - [ ] commit 信息清晰、可追溯
-- [ ] 报告可读，未引入格式问题
+- [x] 报告可读，未引入格式问题

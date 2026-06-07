@@ -1,16 +1,17 @@
 # 脚本可运行性报告
 
 - 运行时间: 2026-06-06
+- 更新: 2026-06-07 — 修复 3 个非路径脚本（kdtree_data/bp_algorithm/smote_label），plan: docs/superpowers/plans/2026-06-07-fix-non-path-script-errors.md
 - 范围: graduation_transfer/ 48 个 .py 脚本（49 个真实脚本 - 1 跳过 = 48；额外 1 条 `data_deal/test.py` 在磁盘但不在 SCRIPTS_ALL）
 - 数据源: 5 旧 (17:12 run_results.json) + 29 新 (本次) + 14 未跑 + 1 跳过（feature_deal.py）
-- 环境: master_study_env (Python 3.11, macOS ARM64, torch 2.12 CPU)
+- 环境: venv (Python 3.11, macOS ARM64, torch 2.12 CPU)
 
 ## 汇总
 
 | 状态 | 数量 |
 |---|---|
-| ✅ 运行成功 | 17 |
-| ❌ 失败 | 9 |
+| ✅ 运行成功 | 19 |
+| ❌ 失败 | 7 |
 | ⏱ 超时 | 8 |
 | ⚠️ 跳过 | 1 |（feature_deal.py 全注释）
 
@@ -21,8 +22,8 @@
 | 🟢 P0-快 | 0 | 现在修，~5 分钟 |
 | 🟡 P1-中 | 17 | 今天修，~30 分钟 |
 | 🟠 P2-数据 | 2 | 数据到位后修 |
-| 🔵 P3-GPU | 4 | 上服务器跑 |
-| ⚪ P4-可忽略 | 25 | 视情况 |
+| 🔵 P3-GPU | 3 | 上服务器跑 |
+| ⚪ P4-可忽略 | 26 | 视情况 |
 
 ### sleep_classify（11 条）
 
@@ -37,20 +38,14 @@
 - 数据源: 旧 (17:12 JSON)
 
 
-#### ❌ `bp_algorithm.py`
+#### ✅ `bp_algorithm.py`
 
 - 路径: `graduation_transfer/sleep_posture/sleep_classify/code/bp_algorithm.py`
 - 功能: 全连接神经网络进行数据分类
 - Imports: numpy, os, pandas, pathlib, sklearn
-- 运行: exit=1, 100.0s
-- 错误: `RuntimeError: train_dataloader = DataLoader(
-^^^^^^^^^^^
-File "/Users/zero/Desktop/master_study/master_study_env/lib/python3.11/site-packages/torch/utils/data/dataloader.py", line 281, in __init__
-raise ValueError(`
-- 行号: 187
-- 修复: PyTorch 2.x 不允许 num_workers=0 时设 prefetch_factor。修复：第 187 行 的 `DataLoader(...)` 删除 `prefetch_factor=2` 参数
-- 优先级: 🔵 P3-GPU
-- 数据源: 旧 (17:12 JSON)
+- 运行: exit=0, 100.5s; 修复 line 134 删除 prefetch_factor=2; 5 epochs Acc=0.987 (已恢复 total_epoch=100)
+- 优先级: ⚪ P4-可忽略
+- 数据源: 旧 (17:12 JSON) + 2026-06-07 验证
 
 
 #### ❔ `concat_data.py`
@@ -71,17 +66,14 @@ raise ValueError(`
 - 数据源: 旧 (17:12 JSON)
 
 
-#### ❌ `kdtree_data.py`
+#### ✅ `kdtree_data.py`
 
 - 路径: `graduation_transfer/sleep_posture/sleep_classify/code/kdtree_data.py`
 - 功能: (无法推断)
 - Imports: numpy, os, pandas, sklearn, tqdm
-- 运行: exit=1, 98.7s
-- 错误: `NameError: NameError: name 'Y' is not defined`
-- 行号: 43
-- 修复: 变量 `Y` 未定义。原因：可能未初始化或被注释。修复：第 43 行 附近加 `Y = ...`
+- 运行: exit=0, 99.7s; 修复 line 40 取消 Y 注释; Acc=1.00
 - 优先级: ⚪ P4-可忽略
-- 数据源: 旧 (17:12 JSON)
+- 数据源: 旧 (17:12 JSON) + 2026-06-07 验证
 
 
 #### ✅ `kmeans_algorithm.py`
@@ -237,12 +229,11 @@ raise ValueError(`
 - 路径: `graduation_transfer/sleep_stage/睡眠研究/SleepEDF数据处理/IMU_sleep_stage-带有标签的IMU代码处理/data_deal_code/smote_label.py`
 - 功能: (无法推断)
 - Imports: imblearn, os, pandas, pathlib
-- 运行: exit=1, 0.3s
-- 错误: `ModuleNotFoundError: ModuleNotFoundError: No module named 'imblearn'`
-- 行号: 3
-- 修复: 缺包。修复：`pip install imblearn`
+- 运行: exit=1, ~80s
+- 错误: `ValueError: With over-sampling methods, the number of samples in a class should be greater or equal to the original number of samples. Originally, there is 1351647 samples and 100000 samples are asked.`
+- 修复: 部分修复：defensive import（line 5-10 + 27-30）; 数据逻辑 bug 未修（SMOTE 只能过采样，class 0 有 1.35M 样本，目标 100k 需用 RandomUnderSampler）
 - 优先级: 🟡 P1-中
-- 数据源: 新 (本次)
+- 数据源: 新 (本次) + 2026-06-07 部分修复
 
 
 #### ⏱ `train_data_deal.py`
@@ -536,5 +527,6 @@ raise ValueError("Sample larger than popula`
 
 - 跑 29 个脚本: `tools/run_analysis.py --filter sleep_stage`
 - 重新生成报告: `tools/generate_runnability_report.py`
+- 2026-06-07 plan 修复 3 条：kdtree_data/bp_algorithm/smote_label（commit 7c45397）
 - 旧 run_results.json: 17:12 5 条 sleep_classify 验证
 - 旧 run-analysis-report.md: 15:29 18 个完整分析（markdown，无法结构化合并）
