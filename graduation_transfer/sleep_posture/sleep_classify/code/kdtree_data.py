@@ -37,7 +37,7 @@ new_df.label = new_df.label.astype(np.int32)
 # 3. 根据需求获取最原始的特征属性矩阵X和目标属性Y
 X = new_df.iloc[:, :-1]
 # print(X.shape)
-# Y = new_df.iloc[:, -1]
+Y = new_df.iloc[:, -1]
 
 # # 4 数据分割
 x_train, x_test, y_train, y_test = train_test_split(X, Y, train_size=0.8)
