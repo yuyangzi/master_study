@@ -1,0 +1,48 @@
+clc;
+clear;
+% clear all;
+SampleFre = 256; % 采样频率
+%% 导入数据
+eeg = load('袁睿淇open.xls');
+%%
+eeg_sig=eeg(:,3) * 2.048 / double(0x7FFFFF); %将单位转换为V
+SignalLen = length(eeg_sig);
+t = (1:SignalLen) / SampleFre;
+figure;
+plot(t, eeg_sig,'-b');
+xlabel("Time (s)");ylabel("Output (V)"); % 原始信号
+grid on;
+%% 分解重构信号
+sc = 8; % 128 / 2`8 = 0.5
+wpt21 = wpdec(eeg_sig, sc, 'db5', 'shannon'); % 小波包分解信号
+% 重构信号
+base_line = wprcoef(wpt21, [8 0]); % baseline(<0.5)
+close_delta1 = wprcoef(wpt21, [5 0]) - base_line; % delta(0.5-4)
+close_theta1 = wprcoef(wpt21, [5 1]); % theta(4-8),
+close_alpha1 = wprcoef(wpt21, [5 2]) + wprcoef(wpt21, [6 6]); % alpha(8-14)
+close_beta1 = wprcoef(wpt21, [3 1]) + wprcoef(wpt21, [6 7]) - wprcoef(wpt21, [6 15]); % beta(14-30)
+close_gamma1 = wprcoef(wpt21, [3 2]) + wprcoef(wpt21, [6 15]); % gamma(30-48)
+% 画出重构信号
+figure;
+subplot(3,2,1); plot(t, close_delta1);grid on;
+xlabel("Time (s)");ylabel("Output (mV)"); title("Delta wave"); % 重构出的delta
+subplot(3,2,2); plot(t, close_theta1); grid on;
+xlabel("Time (s)");ylabel("Output (mV)"); title("Theta wave"); % 重构出的delta
+subplot(3,2,3); plot(t, close_alpha1); grid on;
+xlabel("Time (s)");ylabel("Output (mV)"); title("Alpha wave"); % 重构出的delta
+subplot(3,2,4); plot(t, close_beta1); grid on;
+xlabel("Time (s)");ylabel("Output (mV)"); title("Beta wave"); % 重构出的delta
+subplot(3,2,5); plot(t, close_gamma1); grid on;
+xlabel("Time (s)");ylabel("Output (mV)"); title("Gamma wave"); % 重构出的gamma
+%%
+% 重构出来的信号的频谱
+[Frequence11,FFTAmplitude11] = compute_fft( close_delta1, SampleFre, SignalLen );
+[Frequence12,FFTAmplitude12] = compute_fft( close_theta1, SampleFre, SignalLen );
+[Frequence13,FFTAmplitude13] = compute_fft( close_alpha1, SampleFre, SignalLen );
+[Frequence14,FFTAmplitude14] = compute_fft( close_beta1, SampleFre, SignalLen );
+[Frequence15,FFTAmplitude15] = compute_fft( close_gamma1, SampleFre, SignalLen );
+energy_f11=sum((abs(FFTAmplitude11)));
+energy_f12=sum((abs(FFTAmplitude12)));
+energy_f13=sum((abs(FFTAmplitude13)));
+energy_f14=sum((abs(FFTAmplitude14)));
+energy_f15=sum((abs(FFTA
