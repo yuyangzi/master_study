@@ -14,7 +14,6 @@ from sklearn.metrics import precision_score, recall_score, f1_score, confusion_m
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
-from pathlib import Path
 
 # 设置中文字体和样式（用于SCI论文）
 plt.rcParams['font.sans-serif'] = ['Arial', 'DejaVu Sans']  # 使用Arial字体（SCI论文常用）
@@ -83,7 +82,7 @@ class SleepLSTM(nn.Module):
 
 
 # 数据加载（与psg_rnn_lstm.py保持一致）
-dir_path = str(Path(__file__).parent.parent / "merge_data" / "balanced_sort_2025_09_15_21_data.csv")
+dir_path = "F:/master_paper_and_project/research/new_project/merge_data/balanced_sort_2025_09_15_21_data.csv"
 df = pd.read_csv(dir_path)
 features = df.drop('label', axis=1).values
 labels = df['label'].values

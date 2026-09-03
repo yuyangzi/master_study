@@ -11,7 +11,6 @@ from datetime import datetime, timedelta
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from pathlib import Path
 
 
 # config = {
@@ -168,8 +167,8 @@ def process_eeg_file(file_path):
 # 使用示例
 if __name__ == "__main__":
     # 从图一获取文件路径 (修改为实际路径)
-    input_file = str(Path(__file__).parent.parent / "EEG_data" / "gjx" / "")
-    output_file = str(Path(__file__).parent.parent / "time_frequent_signal" / "gjx" / "")
+    input_file = "E:/master_paper_and_project/sleep_stage/EEG_data/gjx/"
+    output_file = "E:/master_paper_and_project/sleep_stage/time_frequent_signal/gjx/"
     # 处理数据
     for i in range(2, 3):
         file_name = "psg_eeg_gjx_0715.csv"

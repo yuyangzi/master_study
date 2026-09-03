@@ -131,6 +131,7 @@ def load_data(batch_size):
         collate_fn=None,  # 给定如何将样本组合成批次数据
         pin_memory=False,  # 当GPU训练的时候，如果你的dataset中的数据没有经过数据转换的，将该参数设置为True的话可以减少cpu和gpu的数据传输
         drop_last=False,  # 如果最后一个批次的数据量小于batch_size,那么当前批次数据是否丢弃
+        prefetch_factor=2
     )
     test_dataloader = DataLoader(
         dataset=test_dataset,

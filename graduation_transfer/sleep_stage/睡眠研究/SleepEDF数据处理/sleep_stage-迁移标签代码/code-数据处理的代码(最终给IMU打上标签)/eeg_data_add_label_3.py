@@ -7,7 +7,6 @@ import torch.nn as nn
 from sklearn.preprocessing import StandardScaler
 from torch.utils.data import Dataset, DataLoader
 import numpy as np
-from pathlib import Path
 
 
 class SleepLSTM(nn.Module):
@@ -76,8 +75,8 @@ model.load_state_dict(checkpoint['model_state_dict'])
 model.eval()  # 设置为评估模式
 
 
-csv_file_path = str(Path(__file__).parent.parent / "time_frequent_signal" / "gjx" / "")
-csv_save_path = str(Path(__file__).parent.parent / "time_frequent_signal" / "label_gjx" / "")
+csv_file_path = "E:/master_paper_and_project/sleep_stage/time_frequent_signal/gjx/"
+csv_save_path = "E:/master_paper_and_project/sleep_stage/time_frequent_signal/label_gjx/"
 
 for i in range(2, 3):
     file_path = csv_file_path + "time_frequent_gjx_0715.csv"

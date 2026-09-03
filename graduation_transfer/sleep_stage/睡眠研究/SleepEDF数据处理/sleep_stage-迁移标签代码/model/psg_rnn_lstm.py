@@ -9,7 +9,6 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-from pathlib import Path
 
 # 设备配置
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -45,7 +44,7 @@ class SleepDataset(Dataset):
         return torch.FloatTensor(seq_features), torch.LongTensor([label])
 
 # 数据加载
-dir_path = str(Path(__file__).parent.parent.parent / "Sleep-pdf处理代码" / "new_project" / "merge_data" / "balanced_sort_2025_09_15_21_data.csv")
+dir_path = "E:/master_paper_and_project/research/new_project/merge_data/balanced_sort_2025_09_15_21_data.csv"
 df = pd.read_csv(dir_path)
 features = df.drop('label', axis=1).values
 labels = df['label'].values

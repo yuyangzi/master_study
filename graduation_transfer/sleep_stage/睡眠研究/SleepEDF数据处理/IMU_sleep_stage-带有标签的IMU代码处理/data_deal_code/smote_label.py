@@ -1,17 +1,10 @@
 import os
 import pandas as pd
-from pathlib import Path
-
-try:
-    from imblearn.over_sampling import SMOTE
-    _HAS_SMOTE = True
-except ImportError:
-    SMOTE = None
-    _HAS_SMOTE = False
+from imblearn.over_sampling import SMOTE
 
 def main():
-    input_path = str(Path(__file__).parent.parent / "base_data" / "liu_imu_label.csv")
-    output_path = str(Path(__file__).parent.parent / "base_data" / "liu_imu_label_smote_label0_100k.csv")
+    input_path = "F:/master_paper_and_project/IMU_sleep_stage/base_data/liu_imu_label.csv"
+    output_path = "F:/master_paper_and_project/IMU_sleep_stage/base_data/liu_imu_label_smote_label0_100k.csv"
 
     df = pd.read_csv(input_path)
     if 'predicted_label' not in df.columns:
@@ -24,10 +17,6 @@ def main():
     X = df[X_cols]
 
     target_count = 100000
-    if not _HAS_SMOTE:
-        raise ImportError(
-            "缺少依赖: imbalanced-learn。运行: pip install imbalanced-learn"
-        )
     smote = SMOTE(random_state=42, sampling_strategy={0: target_count})
     X_res, y_res = smote.fit_resample(X, y)
 

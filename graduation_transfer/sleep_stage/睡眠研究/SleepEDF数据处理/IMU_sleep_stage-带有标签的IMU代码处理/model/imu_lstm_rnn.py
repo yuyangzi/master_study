@@ -10,7 +10,6 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import precision_score, recall_score, f1_score
-from pathlib import Path
 
 # 设备配置
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -46,7 +45,7 @@ class SleepDataset(Dataset):
         return torch.FloatTensor(seq_features), torch.LongTensor([label])
 
 # 数据加载
-dir_path = str(Path(__file__).parent.parent / "base_data" / "train_label.csv")
+dir_path = "F:/ysl/IMU_sleep_stage/base_data/train_label.csv"
 df = pd.read_csv(dir_path)
 features = df.drop('predicted_label', axis=1).values
 labels = df['predicted_label'].values

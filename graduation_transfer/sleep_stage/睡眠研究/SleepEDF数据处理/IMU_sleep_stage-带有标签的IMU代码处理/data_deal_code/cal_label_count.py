@@ -2,7 +2,6 @@ import os
 import sys
 from typing import Dict
 import pandas as pd
-from pathlib import Path
 
 
 def count_labels(input_path: str, label_col: str = 'predicted_label', chunksize: int = 500_000) -> Dict[str, int]:
@@ -23,8 +22,8 @@ def count_labels(input_path: str, label_col: str = 'predicted_label', chunksize:
 
 def main():
 
-    input_path = str(Path(__file__).parent.parent / "base_data" / "train_label.csv")
-    output_path = str(Path(__file__).parent.parent / "base_data" / "label_count.csv")
+    input_path = "F:/master_paper_and_project/IMU_sleep_stage/base_data/train_label.csv"
+    output_path = "F:/master_paper_and_project/IMU_sleep_stage/base_data/label_count.csv"
 
     label_col = 'predicted_label'
 

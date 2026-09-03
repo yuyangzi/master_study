@@ -1,8 +1,7 @@
 import pandas as pd
-from pathlib import Path
 
 # 读取文件1（含 start_time, end_time, predicted_label）
-label_path = str(Path(__file__).parent.parent / "time_frequent_signal" / "label_gjx" / "time_frequent_label_gjx_0715.csv")
+label_path = "E:/master_paper_and_project/sleep_stage/time_frequent_signal/label_gjx/time_frequent_label_gjx_0715.csv"
 file1 = pd.read_csv(label_path)
 # 确保时间列是数字格式（浮点或整数）
 # 将 start_time 和 end_time 转为 datetime 对象
@@ -15,7 +14,7 @@ file1['end_ts'] = file1['end_time'].apply(lambda x: x.timestamp())
 print(file1.head())
 # 读取文件2（IMU数据），比如：
 # timestamp,x,y,z ...
-imu_path = str(Path(__file__).parent.parent / "EEG_data" / "imu_gjx" / "imu_gjx_0715.csv")
+imu_path = "E:/master_paper_and_project/sleep_stage/EEG_data/imu_gjx/imu_gjx_0715.csv"
 file2 = pd.read_csv(imu_path)
 
 # 确保时间戳是数字格式
@@ -39,7 +38,7 @@ for _, row in file1.iterrows():
     mask = (file2['timestamp'] >= row['start_ts']) & (file2['timestamp'] <= row['end_ts'])
     file2.loc[mask, 'predicted_label'] = row['predicted_label']
 
-output_path = str(Path(__file__).parent.parent / "time_frequent_signal" / "imu_label_gjx" / "imu_label_gjx.csv")
+output_path = "E:/master_paper_and_project/sleep_stage/time_frequent_signal/imu_label_gjx/imu_label_gjx.csv"
 # 只保留需要的列
 output = file2[['ax', 'ay', 'az', 'gx', 'gy', 'gz', 'predicted_label']]
 output = output.dropna(subset=['predicted_label'])

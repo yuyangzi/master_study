@@ -2,12 +2,11 @@ import mne
 import numpy as np
 import pandas as pd
 from scipy.signal import welch
-from pathlib import Path
 
 
 def test():
 
-    dir_path = str(Path(__file__).parent.parent.parent.parent / "all_data" / "sleep-cassette" / "SC4001E0-PSG.edf")
+    dir_path = "E:/master_paper_and_project/research/all_data/sleep-cassette/SC4001E0-PSG.edf"
 
     raw = mne.io.read_raw_edf(dir_path, preload=True)
     # 2. 查看通道信息
@@ -24,7 +23,7 @@ def test():
 
 
 def test_Hypnogram():
-    dir_path = str(Path(__file__).parent.parent.parent.parent / "all_data" / "sleep-cassette" / "SC4001EC-Hypnogram.edf")
+    dir_path = "E:/master_paper_and_project/research/all_data/sleep-cassette/SC4001EC-Hypnogram.edf"
     Annotations = mne.read_annotations(dir_path)
 
     print("-----Annotations-------")
@@ -67,9 +66,9 @@ def entire_psg_hypnogram_edf():
     :return:
     """
     # 原始的数据集
-    psg_file = str(Path(__file__).parent.parent.parent.parent / "all_data" / "sleep-cassette" / "SC4001E0-PSG.edf")
+    psg_file = "E:/master_paper_and_project/research/all_data/sleep-cassette/SC4001E0-PSG.edf"
     # 注释的数据集
-    hypnogram_file = str(Path(__file__).parent.parent.parent.parent / "all_data" / "sleep-cassette" / "SC4001EC-Hypnogram.edf")
+    hypnogram_file = "E:/master_paper_and_project/research/all_data/sleep-cassette/SC4001EC-Hypnogram.edf"
 
     # 初始化列表保存数据和标签
     features = []

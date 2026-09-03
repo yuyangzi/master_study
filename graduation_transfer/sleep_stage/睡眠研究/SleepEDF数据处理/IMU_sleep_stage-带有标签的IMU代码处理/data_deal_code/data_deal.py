@@ -185,8 +185,8 @@ def main():
     random.seed(42)
     
     # 文件路径
-    csv_path = str(Path(__file__).parent.parent / "base_data" / "liu_imu_label.csv")
-    output_dir = str(Path(__file__).parent.parent / "base_data" / ".." / "deal_data_csv")
+    csv_path = r"F:\master_paper_and_project\IMU_sleep_stage\base_data\liu_imu_label.csv"
+    output_dir = r"F:\master_paper_and_project\IMU_sleep_stage\deal_data_csv"
     
     print("=" * 60)
     print("IMU睡眠阶段数据处理开始")

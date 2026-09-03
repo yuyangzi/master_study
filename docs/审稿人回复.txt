@@ -1,0 +1,88 @@
+发件人：IEEE Internet of Things Journal<onbehalfof@manuscriptcentral.com>
+日期：06/07/2026, 00:06
+收件人：hechunhua<hechunhua@pku.edu.cn>;
+抄送人：3223004513<3223004513@mail2.gdut.edu.cn>;yeshangle<yeshangle@mails.gdut.edu.cn>;2112405121<2112405121@mail2.gdut.edu.cn>;2112205258<2112205258@mail2.gdut.edu.cn>;heng.wu<heng.wu@gdut.edu.cn>;hechunhua<hechunhua@pku.edu.cn>;ioteict<ioteict@cse.ust.hk>;antonio.montieri<antonio.montieri@unina.it>;
+主题：IoT-63850-2026 Decision and Recommendations
+06-Jun-2026
+
+Paper: IoT-63850-2026 A Sleep Monitoring Belt–Based Sleep Staging Method via EEG-Guided Label Transfer and Deep Learning
+Authors:  Prof. Chunhua He, Lin, Xinran; Ye, Shangle; Zhan, Jian; Liu, Shuibin; Wu, Heng; He, Chunhua
+Editor: Dr. Antonio Montieri
+
+Dear Prof. He,
+
+I am writing to you concerning the above referenced manuscript which you submitted to the IEEE Internet of Things Journal.
+
+Based on the enclosed set of reviews, this manuscript is not acceptable for publication at this time.  Please consider the comments of the reviewers and resubmit your reworked manuscript as quickly as you feel is appropriate.  Your revised manuscript will receive another peer review as a new submission.  Be sure to mention the original paper number in your cover letter and the Author Comments field.
+
+As you revise the manuscript, please use the Track Changes feature of MS Word, or a similar method, to show the changes you have made.  The changes must be underlined or highlighted in the resubmitted manuscript.  This will expedite the re-review process.
+
+Be sure to include a file with a detailed response to the reviews as well. You can use the following link to start your resubmission without logging in:
+
+https://ieee.atyponrex.com/submission/submissionBoard/REX-PROD-2-67F3A3FF-19B0-415D-98FB-E5E8AA30031F-BE21EB8B-C9CE-4344-8D0B-E5AD38FD32DE-30827/current?idtype=external
+
+If you have any questions regarding the reviews, please contact the Associate Editor: Dr. Antonio Montieri antonio.montieri@unina.it.  Any other inquiries should be directed to the Administrative Assistant: Surbhi Tyagi surbhi.tyagi@ieee.org
+
+Thank you for considering IEEE Internet of Things Journal for publication of your work.
+
+Sincerely,
+Dr. Bo Li (IoT-J EiC)
+Editor-in-Chief, IEEE Internet of Things Journal
+ioteict@cse.ust.hk
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+• Associate Editor Comments, if any, are listed below:
+
+Associate Editor: Montieri, Antonio
+REQUIRED: Comments to Author:
+Based on the Reviewers' comments and my own reading, the manuscript is rejected in its current form. However, the authors are encouraged to significantly revise and resubmit the paper.
+
+Going into the details, the Reviewers have recognized that the hardware-synchronized label-transfer paradigm is highly innovative. On the other hand, the manuscript suffers from multiple methodological flaws. Most notably, the high accuracy obtained suggests severe data leakage likely caused by epoch-wise rather than subject-wise data splitting. A significant revision should implement strict subject-wise cross-validation in both the source and target domains to ensure valid results.
+
+Moreover, the authors should justify the architectural choice of applying a deep RNN-LSTM to shallow, 10-dimensional handcrafted features. The revised manuscript should also report Cohen's kappa statistics, provide hypnogram visualizations, and detail the exact sample sizes and confusion matrices for the target domain.
+
+Finally, the authors should deepen the analysis of the state of the art, clarify the physics-informed mathematical model, correct all formatting errors, and expand the target dataset beyond 10 healthy subjects to better support claims of clinical viability.
+
+• Reviewer Comments, if any, are listed below:
+
+Reviewer: 1
+
+Comments to the Author
+#1 98.64% accuracy is surpassing current benchmarks significantly for sleep EDF dataset. This needs to be validated
+- Check for data leakage into test due to epoch wise splitting instead of subject wise splitting of test and train data
+- check for overfitting
+#2 Physics informed mathematical inversion model could be explained for clarity
+#3 Missing details
+- number of samples in each class. number of samples in test train data
+- confusion matrix for target domain results
+# 4 format changes
+- relative power symbol changes from beta to B
+- image added in conclusion obstructing readability
+
+
+Reviewer: 2
+
+Comments to the Author
+Things that I really appreciate about this paper:
+1- The paper addresses an important problem: the "data-rich but label-poor" bottleneck in non-wearable sleep monitoring. The core idea “using a pre-trained EEG model to automatically generate sleep stage labels, then transferring them via hardware synchronized timestamps to IMU data from a mattress-based belt” is clever and practically motivated.
+2- The technical pipeline is end-to-end and coherent. Starting from the public Sleep-EDF dataset, building a strong source-domain classifier (RNN-LSTM at 98.64% accuracy on a balanced 4-class task), then using hardware-level time synchronization (< 10 ms) to bridge EEG labels to IMU segments is a sensible and reproducible workflow. The hardware synchronization detail is a real contribution because many label-transfer papers assume synchronization without actually solving it.
+3- The paper is honest about limitations. The authors explicitly flag the small sample size (N=10), the healthy-young-adult-only cohort, the absence of clinical populations, and the lack of state-of-the-art architectures like Transformers or TCNs.
+
+My criticisms
+1- The most serious concern is data leakage risk in the source domain. An accuracy of 98.64% on a 4-class sleep staging task using only 10 handcrafted features from a single EEG channel is implausibly high. Even state-of-the-art end-to-end deep learning models on the full Sleep-EDF dataset with far richer features typically achieve 80–87% on 5-class and 86–92% on 4-class tasks. The authors apply undersampling to create a 1:1:1:1 balanced dataset from 80 subjects, then use 5-fold cross-validation but they do not clarify whether the fold split is subject-wise or epoch-wise. If epochs from the same subject appear in both train and test folds, the model is memorizing within-subject patterns, which is the most common source of inflated accuracy in sleep staging literature. This must be clarified and likely corrected; subject-level cross-validation is the standard.
+2- Related to the point 1, the feature set is shallow but the model is deep. The 10-dimensional feature vector (5 time-domain + 5 band-power features) fed into an RNN-LSTM is an unusual design. RNN-LSTMs are typically applied to raw sequential data to learn features, not to handcrafted tabular feature vectors. Using a sequence model on a single 10-dimensional vector per epoch essentially reduces to a feedforward classifier with added overhead. The authors do not justify this design decision, nor compare it to a simple MLP baseline on the same features.
+3- The target-domain sample size is underspecified. 10 participants × ~7.5 hours × ~900 epochs each yields roughly 9,000 epochs before filtering. An 80/20 split on this pool, potentially without subject-level separation, means the test set may contain epochs from subjects already seen in training. This would again inflate the 89.77% result.
+4- The four-stage classification scheme (Wake, N1+N2, N3, REM) discards N1 from N2, which is clinically relevant: N1 fragmentation is one of the earliest markers of insomnia and sleep apnea. Merging them for "class balance" is a pragmatic choice but limits clinical utility.
+5- The study population (10 healthy adults, mean age 26.4, no sleep disorders) is the population for whom home sleep monitoring is least needed. The clinical value is highest for older adults with fragmented sleep, OSA patients, or people with circadian disorders — precisely the populations excluded. A system validated only on healthy young adults cannot claim clinical viability.
+6- Minor suggestion: There is no hypnogram visualization for any participant. This is standard in sleep staging papers and would allow readers to assess whether the model captures the expected NREM-REM cycling across the night, or merely classifies individual epochs in isolation.
+
+These papers are suggested to be reviewed and cited appropriately
+
+Supratak A, Guo Y. TinySleepNet: An efficient deep learning model for sleep stage scoring based on raw single-channel EEG. In: Proc. 42nd Annual International Conference of the IEEE Engineering in Medicine and Biology Society (EMBC). Montreal, Canada; 2020. pp. 641–644.
+DOI: 10.1109/EMBC44109.2020.9176741
+TinySleepNet is the standard lightweight single-channel EEG baseline on Sleep-EDF, achieving kappa values of 0.77–0.82 on the same dataset. It is absent as a comparator given the manuscript's claim to efficiency and strong source-domain accuracy.
+
+Fonseca P, Ross M, Cerny A, Anderer P, van Meulen F, Janssen H, Pijpers A, Dujardin S, van Hirtum P, van Gilst M, Overeem S. A computationally efficient algorithm for wearable sleep staging in clinical populations. Scientific Reports. 2023;13:9182.
+DOI: 10.1038/s41598-023-36444-2
+
+This paper performs 4-class sleep staging (Wake, N1+N2, N3, REM) from accelerometry and PPG in a clinical population, reporting a median Cohen's kappa of 0.638 alongside accuracy of 77.8%. It provides the direct kappa-benchmarked comparator that is missing from the manuscript's evaluation, validated on a clinical cohort, and should be cited both as a competitor and as justification for why kappa must be reported.

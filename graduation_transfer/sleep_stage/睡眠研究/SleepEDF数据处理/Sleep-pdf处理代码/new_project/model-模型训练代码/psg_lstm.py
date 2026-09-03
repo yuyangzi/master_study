@@ -9,9 +9,8 @@ from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.metrics import precision_score, recall_score, f1_score
 import pandas as pd
 import numpy as np
-from pathlib import Path
 
-dir_path = str(Path(__file__).parent.parent / "merge_data" / "balanced_sort_2025_09_15_21_data.csv")
+dir_path = "F:/master_paper_and_project/research/new_project/merge_data/balanced_sort_2025_09_15_21_data.csv"
 df = pd.read_csv(dir_path)
 # value_to_remove = ['Movement time', 'Sleep stage ?']
 # df = df[~df['label'].isin(value_to_remove)]

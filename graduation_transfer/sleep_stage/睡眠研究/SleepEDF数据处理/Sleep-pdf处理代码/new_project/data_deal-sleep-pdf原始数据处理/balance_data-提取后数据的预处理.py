@@ -79,10 +79,10 @@ def balance_data(input_file, output_dir=None):
 
 if __name__ == "__main__":
     # 输入文件路径
-    input_file = str(Path(__file__).parent.parent / "merge_data" / "2025_09_15_21_data.csv")
+    input_file = r"E:\master_paper_and_project\research\new_project\merge_data\2025_09_15_21_data.csv"
     
     # 输出目录
-    output_dir = str(Path(__file__).parent.parent / "merge_data")
+    output_dir = r"E:\master_paper_and_project\research\new_project\merge_data"
     
     # 执行数据平衡
     balanced_data = balance_data(input_file, output_dir)
